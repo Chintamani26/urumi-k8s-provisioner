@@ -1,0 +1,31 @@
+{{- if .Values.database.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "woocommerce.fullname" . }}-init
+  labels:
+    {{- include "woocommerce.labels" . | nindent 4 }}
+    app.kubernetes.io/component: init
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "woocommerce.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: init
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: wait-for-db
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for MySQL to be ready..."
+              until nc -z {{ include "woocommerce.fullname" . }}-mysql 3306; do
+                echo "MySQL is unavailable - sleeping"
+                sleep 2
+              done
+              echo "MySQL is up - executing init script"
+              sleep 5
+{{- end }}

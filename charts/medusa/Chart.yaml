@@ -1,0 +1,12 @@
+apiVersion: v2
+name: medusa
+description: A Helm chart for deploying MedusaJS ecommerce stores on Kubernetes
+type: application
+version: 0.1.0
+appVersion: "latest"
+keywords:
+  - medusa
+  - medusajs
+  - ecommerce
+maintainers:
+  - name: Urumi K8s Provisioner

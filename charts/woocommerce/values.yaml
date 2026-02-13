@@ -1,0 +1,145 @@
+# Default values for woocommerce
+# This is a YAML-formatted file.
+
+replicaCount: 1
+
+# WordPress/WooCommerce Image
+image:
+  repository: wordpress
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+# Service Configuration
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+# Ingress Configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: woocommerce.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# WordPress Persistence
+persistence:
+  enabled: true
+  size: 1Gi
+  storageClassName: ""
+  accessMode: ReadWriteOnce
+
+# Database Configuration
+database:
+  enabled: true
+  type: mysql
+  image:
+    repository: mysql
+    tag: "8.0"
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClassName: ""
+    accessMode: ReadWriteOnce
+  rootPassword: ""  # Will be generated if empty
+  database: wordpress
+  user: wordpress
+  password: ""  # Will be generated if empty
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# WordPress Environment Variables
+wordpress:
+  dbHost: ""  # Auto-set to database service name
+  dbName: wordpress
+  dbUser: wordpress
+  dbPassword: ""  # Auto-set from database password
+  tablePrefix: wp_
+  debug: false
+
+# Secrets Configuration
+secrets:
+  create: true
+  # If empty, passwords will be auto-generated
+  dbRootPassword: ""
+  dbPassword: ""
+  wordpressKey: ""  # WordPress security keys
+
+# Resources
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Network Policy Configuration
+networkPolicy:
+  enabled: true
+  ingressController:
+    namespace: ingress-nginx
+    labels:
+      app.kubernetes.io/name: ingress-nginx
+
+# Resource Quota Configuration
+resourceQuota:
+  enabled: true
+  hard:
+    requests.cpu: "2"
+    requests.memory: 2Gi
+    limits.cpu: "4"
+    limits.memory: 4Gi
+    persistentvolumeclaims: "3"
+    requests.storage: "10Gi"
+    limits.storage: "20Gi"
+
+# LimitRange Configuration (default requests/limits for pods)
+limitRange:
+  enabled: true
+  default:
+    cpu: "500m"
+    memory: "512Mi"
+  defaultRequest:
+    cpu: "250m"
+    memory: "256Mi"
+  max:
+    cpu: "2"
+    memory: "2Gi"
+  min:
+    cpu: "100m"
+    memory: "128Mi"
+  maxStorage: "10Gi"
+
+# Health Checks
+healthCheck:
+  enabled: true
+  livenessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3

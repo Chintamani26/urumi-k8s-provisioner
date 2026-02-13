@@ -1,0 +1,37 @@
+# Local development values (for Kind/k3d/Minikube)
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: woocommerce.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# Use local storage classes
+persistence:
+  storageClassName: "standard"  # Adjust for your local cluster
+
+database:
+  persistence:
+    storageClassName: "standard"  # Adjust for your local cluster
+
+# Lower resources for local
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+database:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi

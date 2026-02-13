@@ -1,0 +1,19 @@
+{{- if .Values.database.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "woocommerce.fullname" . }}-mysql
+  labels:
+    {{- include "woocommerce.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3306
+      targetPort: mysql
+      protocol: TCP
+      name: mysql
+  selector:
+    {{- include "woocommerce.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+{{- end }}

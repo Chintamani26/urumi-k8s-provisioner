@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: store-provisioner
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: store-provisioner
+  namespace: default
+rules:
+  # Namespace management
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list", "create", "delete"]
+  # For checking status across namespaces
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: store-provisioner
+rules:
+  # Namespace management
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list", "create", "delete"]
+  # Pod status checking
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+    resourceNames: []
+  # Deployment status checking
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list"]
+    resourceNames: []
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: store-provisioner
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: store-provisioner
+subjects:
+  - kind: ServiceAccount
+    name: store-provisioner
+    namespace: default
+---
+# Role for managing resources in store namespaces
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: store-namespace-manager
+rules:
+  # Full access to resources in store namespaces (Helm manages these)
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
+    resourceNames: []
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: store-namespace-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: store-namespace-manager
+subjects:
+  - kind: ServiceAccount
+    name: store-provisioner
+    namespace: default

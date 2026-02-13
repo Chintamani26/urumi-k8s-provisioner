@@ -1,0 +1,27 @@
+{{- if .Values.limitRange.enabled }}
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: {{ include "woocommerce.fullname" . }}-limits
+  labels:
+    {{- include "woocommerce.labels" . | nindent 4 }}
+spec:
+  limits:
+    - default:
+        cpu: {{ .Values.limitRange.default.cpu | default "500m" }}
+        memory: {{ .Values.limitRange.default.memory | default "512Mi" }}
+      defaultRequest:
+        cpu: {{ .Values.limitRange.defaultRequest.cpu | default "250m" }}
+        memory: {{ .Values.limitRange.defaultRequest.memory | default "256Mi" }}
+      type: Container
+    - max:
+        cpu: {{ .Values.limitRange.max.cpu | default "2" }}
+        memory: {{ .Values.limitRange.max.memory | default "2Gi" }}
+      min:
+        cpu: {{ .Values.limitRange.min.cpu | default "100m" }}
+        memory: {{ .Values.limitRange.min.memory | default "128Mi" }}
+      type: Container
+    - max:
+        storage: {{ .Values.limitRange.maxStorage | default "10Gi" }}
+      type: PersistentVolumeClaim
+{{- end }}

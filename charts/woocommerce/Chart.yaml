@@ -1,0 +1,12 @@
+apiVersion: v2
+name: woocommerce
+description: A Helm chart for deploying WooCommerce stores on Kubernetes
+type: application
+version: 0.1.0
+appVersion: "latest"
+keywords:
+  - woocommerce
+  - wordpress
+  - ecommerce
+maintainers:
+  - name: Urumi K8s Provisioner
